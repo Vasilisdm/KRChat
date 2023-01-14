@@ -1,0 +1,17 @@
+package com.example.krchat.repository
+
+import org.springframework.data.relational.core.mapping.Table
+import java.time.Instant
+
+@Table("MESSAGES")
+data class Message(
+    val content: String,
+    val contentType: ContentType,
+    val sent: Instant,
+    val username: String,
+    val userAvatarImageLink: String
+)
+
+enum class ContentType {
+    PLAIN
+}
