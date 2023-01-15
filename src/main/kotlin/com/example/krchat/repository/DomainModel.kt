@@ -1,5 +1,6 @@
 package com.example.krchat.repository
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
@@ -9,7 +10,8 @@ data class Message(
     val contentType: ContentType,
     val sent: Instant,
     val username: String,
-    val userAvatarImageLink: String
+    val userAvatarImageLink: String,
+    @Id var id: String? = null
 )
 
 enum class ContentType {
