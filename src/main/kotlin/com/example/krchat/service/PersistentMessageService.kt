@@ -3,8 +3,12 @@ package com.example.krchat.service
 import com.example.krchat.repository.ContentType
 import com.example.krchat.repository.Message
 import com.example.krchat.repository.MessageRepository
+import org.springframework.context.annotation.Primary
+import org.springframework.stereotype.Service
 import java.net.URL
 
+@Service
+@Primary
 class PersistentMessageService(val messageRepository: MessageRepository) : MessageService {
     override fun latest(): List<MessageVM> = messageRepository.findLatest()
         .map {
