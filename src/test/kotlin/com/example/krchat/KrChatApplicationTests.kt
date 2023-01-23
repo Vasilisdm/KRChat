@@ -8,11 +8,13 @@ import com.example.krchat.service.UserVM
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.RequestEntity
@@ -111,5 +113,32 @@ class KrChatApplicationTests {
                     now.truncatedTo(MILLIS)
                 )
             )
+    }
+
+    @Test
+    fun `test that messages posted to the API are stored`() {
+        client.postForEntity<Any>(
+            URI("/api/v1/messages"),
+            MessageVM(
+                content = "Hello people!",
+                user = UserVM(name = "test", avatarImageLink = URL("http://test.com")),
+                sent = now.plusSeconds(1)
+            )
+        )
+
+        messageRepository.findAll()
+            .first { it.content.contains("Hello people!") }
+            .apply {
+                assertThat(this.copy(id = null, sent = sent.truncatedTo(MILLIS)))
+                    .isEqualTo(
+                        Message(
+                            content = "Hello people!",
+                            contentType = ContentType.PLAIN,
+                            sent = now.plusSeconds(1).truncatedTo(MILLIS),
+                            username = "test",
+                            userAvatarImageLink = "http://test.com"
+                        )
+                    )
+            }
     }
 }
