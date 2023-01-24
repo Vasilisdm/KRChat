@@ -1,7 +1,7 @@
 package com.example.krchat.service
 
-import com.example.krchat.asDomainObject
-import com.example.krchat.mapToViewModel
+import com.example.krchat.extensions.asDomainObject
+import com.example.krchat.extensions.mapToViewModel
 import com.example.krchat.repository.MessageRepository
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service

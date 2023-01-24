@@ -18,6 +18,7 @@ import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.RequestEntity
+import prepareForTesting
 import java.net.URI
 import java.net.URL
 import java.time.Instant
@@ -89,7 +90,7 @@ class KrChatApplicationTests {
             object : ParameterizedTypeReference<List<MessageVM>>() {}).body
 
         if (!withLastMessageId) {
-            assertThat(messages?.map { with(it) { copy(id = null, sent = sent.truncatedTo(MILLIS)) } })
+            assertThat(messages?.map { it.prepareForTesting() })
                 .first()
                 .isEqualTo(
                     MessageVM(
@@ -100,7 +101,7 @@ class KrChatApplicationTests {
                 )
         }
 
-        assertThat(messages?.map { with(it) { copy(id = null, sent = sent.truncatedTo(MILLIS)) } })
+        assertThat(messages?.map { it.prepareForTesting() })
             .containsSubsequence(
                 MessageVM(
                     "**testMessage2**",
@@ -129,7 +130,7 @@ class KrChatApplicationTests {
         messageRepository.findAll()
             .first { it.content.contains("Hello people!") }
             .apply {
-                assertThat(this.copy(id = null, sent = sent.truncatedTo(MILLIS)))
+                assertThat(this.prepareForTesting())
                     .isEqualTo(
                         Message(
                             content = "Hello people!",

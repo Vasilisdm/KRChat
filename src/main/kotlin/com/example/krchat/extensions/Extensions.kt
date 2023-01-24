@@ -1,4 +1,4 @@
-package com.example.krchat
+package com.example.krchat.extensions
 
 import com.example.krchat.repository.ContentType
 import com.example.krchat.repository.Message
