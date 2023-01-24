@@ -27,3 +27,6 @@ fun Message.asViewModel(): MessageVM =
         sent = this.sent,
         id = this.id
     )
+
+fun List<Message>.mapToViewModel(): List<MessageVM> =
+    this.map { it.asViewModel() }
