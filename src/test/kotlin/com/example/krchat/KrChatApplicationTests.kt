@@ -57,14 +57,14 @@ class KrChatApplicationTests {
                 ),
                 Message(
                     content = "**testMessage2**",
-                    contentType = ContentType.PLAIN,
+                    contentType = ContentType.MARKDOWN,
                     sent = secondBeforeNow,
                     username = "test1",
                     userAvatarImageLink = "http://test.com"
                 ),
                 Message(
                     content = "`testMessage3`",
-                    contentType = ContentType.PLAIN,
+                    contentType = ContentType.MARKDOWN,
                     sent = now,
                     username = "test2",
                     userAvatarImageLink = "http://test.com"
@@ -104,12 +104,12 @@ class KrChatApplicationTests {
         assertThat(messages?.map { it.prepareForTesting() })
             .containsSubsequence(
                 MessageVM(
-                    "**testMessage2**",
+                    "<body><p><strong>testMessage2</strong></p></body>",
                     UserVM("test1", URL("http://test.com")),
                     now.minusSeconds(1).truncatedTo(MILLIS)
                 ),
                 MessageVM(
-                    "`testMessage3`",
+                    "<body><p><code>testMessage3</code></p></body>",
                     UserVM("test2", URL("http://test.com")),
                     now.truncatedTo(MILLIS)
                 )
@@ -134,7 +134,7 @@ class KrChatApplicationTests {
                     .isEqualTo(
                         Message(
                             content = "Hello people!",
-                            contentType = ContentType.PLAIN,
+                            contentType = ContentType.MARKDOWN,
                             sent = now.plusSeconds(1).truncatedTo(MILLIS),
                             username = "test",
                             userAvatarImageLink = "http://test.com"

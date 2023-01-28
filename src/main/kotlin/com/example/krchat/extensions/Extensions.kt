@@ -4,9 +4,24 @@ import com.example.krchat.repository.ContentType
 import com.example.krchat.repository.Message
 import com.example.krchat.service.MessageVM
 import com.example.krchat.service.UserVM
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.MarkdownParser
 import java.net.URL
 
-fun MessageVM.asDomainObject(contentType: ContentType = ContentType.PLAIN): Message =
+fun ContentType.render(content: String) = when (this) {
+    ContentType.PLAIN -> content
+    ContentType.MARKDOWN -> {
+        val flavourDescriptor = CommonMarkFlavourDescriptor()
+        HtmlGenerator(
+            content,
+            MarkdownParser(flavourDescriptor).buildMarkdownTreeFromString(content),
+            flavourDescriptor
+        ).generateHtml()
+    }
+}
+
+fun MessageVM.asDomainObject(contentType: ContentType = ContentType.MARKDOWN): Message =
     Message(
         content = this.content,
         contentType = contentType,
@@ -19,7 +34,7 @@ fun MessageVM.asDomainObject(contentType: ContentType = ContentType.PLAIN): Mess
 
 fun Message.asViewModel(): MessageVM =
     MessageVM(
-        content = this.content,
+        contentType.render(this.content),
         user = UserVM(
             name = this.username,
             avatarImageLink = URL(this.userAvatarImageLink)

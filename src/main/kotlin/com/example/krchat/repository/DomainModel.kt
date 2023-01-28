@@ -15,5 +15,5 @@ data class Message(
 )
 
 enum class ContentType {
-    PLAIN
+    PLAIN, MARKDOWN
 }
