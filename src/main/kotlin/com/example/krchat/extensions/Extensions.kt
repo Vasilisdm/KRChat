@@ -4,10 +4,16 @@ import com.example.krchat.repository.ContentType
 import com.example.krchat.repository.Message
 import com.example.krchat.service.MessageVM
 import com.example.krchat.service.UserVM
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import java.net.URL
+
+fun MessageVM.asRendered(contentType: ContentType = ContentType.MARKDOWN): MessageVM =
+    this.copy(content = contentType.render(this.content))
+
 
 fun ContentType.render(content: String) = when (this) {
     ContentType.PLAIN -> content
@@ -43,5 +49,5 @@ fun Message.asViewModel(): MessageVM =
         id = this.id
     )
 
-fun List<Message>.mapToViewModel(): List<MessageVM> =
+fun Flow<Message>.mapToViewModel(): Flow<MessageVM> =
     this.map { it.asViewModel() }

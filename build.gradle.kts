@@ -13,7 +13,6 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url = uri("https://repo.spring.io/milestone") }
 }
 
@@ -36,6 +35,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+    implementation("org.springframework.boot:spring-boot-starter-rsocket")
+
+    testImplementation("app.cash.turbine:turbine:0.4.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
