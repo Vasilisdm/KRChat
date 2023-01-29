@@ -5,6 +5,8 @@ import com.example.krchat.repository.Message
 import com.example.krchat.repository.MessageRepository
 import com.example.krchat.service.MessageVM
 import com.example.krchat.service.UserVM
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -27,7 +29,7 @@ import java.time.temporal.ChronoUnit.MILLIS
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "spring.datasource.url=jdbc:h2:mem:testdb"
+        "spring.r2dbc.url=r2dbc:h2:mem:///testdb;USER=sa;PASSWORD=password"
     ]
 )
 class KrChatApplicationTests {
@@ -44,39 +46,43 @@ class KrChatApplicationTests {
 
     @BeforeEach
     fun setUp() {
-        val secondBeforeNow = now.minusSeconds(1)
-        val twoSecondBeforeNow = now.minusSeconds(2)
-        val savedMessages = messageRepository.saveAll(
-            listOf(
-                Message(
-                    content = "*testMessage*",
-                    contentType = ContentType.PLAIN,
-                    sent = twoSecondBeforeNow,
-                    username = "test",
-                    userAvatarImageLink = "http://test.com"
-                ),
-                Message(
-                    content = "**testMessage2**",
-                    contentType = ContentType.MARKDOWN,
-                    sent = secondBeforeNow,
-                    username = "test1",
-                    userAvatarImageLink = "http://test.com"
-                ),
-                Message(
-                    content = "`testMessage3`",
-                    contentType = ContentType.MARKDOWN,
-                    sent = now,
-                    username = "test2",
-                    userAvatarImageLink = "http://test.com"
+        runBlocking {
+            val secondBeforeNow = now.minusSeconds(1)
+            val twoSecondBeforeNow = now.minusSeconds(2)
+            val savedMessages = messageRepository.saveAll(
+                listOf(
+                    Message(
+                        content = "*testMessage*",
+                        contentType = ContentType.PLAIN,
+                        sent = twoSecondBeforeNow,
+                        username = "test",
+                        userAvatarImageLink = "http://test.com"
+                    ),
+                    Message(
+                        content = "**testMessage2**",
+                        contentType = ContentType.MARKDOWN,
+                        sent = secondBeforeNow,
+                        username = "test1",
+                        userAvatarImageLink = "http://test.com"
+                    ),
+                    Message(
+                        content = "`testMessage3`",
+                        contentType = ContentType.MARKDOWN,
+                        sent = now,
+                        username = "test2",
+                        userAvatarImageLink = "http://test.com"
+                    )
                 )
             )
-        )
-        lastMessageId = savedMessages.first().id ?: ""
+            lastMessageId = savedMessages.first().id ?: ""
+        }
     }
 
     @AfterEach
     fun tearDown() {
-        messageRepository.deleteAll()
+        runBlocking {
+            messageRepository.deleteAll()
+        }
     }
 
     @ParameterizedTest
@@ -118,28 +124,30 @@ class KrChatApplicationTests {
 
     @Test
     fun `test that messages posted to the API are stored`() {
-        client.postForEntity<Any>(
-            URI("/api/v1/messages"),
-            MessageVM(
-                content = "Hello people!",
-                user = UserVM(name = "test", avatarImageLink = URL("http://test.com")),
-                sent = now.plusSeconds(1)
+        runBlocking {
+            client.postForEntity<Any>(
+                URI("/api/v1/messages"),
+                MessageVM(
+                    content = "Hello people!",
+                    user = UserVM(name = "test", avatarImageLink = URL("http://test.com")),
+                    sent = now.plusSeconds(1)
+                )
             )
-        )
 
-        messageRepository.findAll()
-            .first { it.content.contains("Hello people!") }
-            .apply {
-                assertThat(this.prepareForTesting())
-                    .isEqualTo(
-                        Message(
-                            content = "Hello people!",
-                            contentType = ContentType.MARKDOWN,
-                            sent = now.plusSeconds(1).truncatedTo(MILLIS),
-                            username = "test",
-                            userAvatarImageLink = "http://test.com"
+            messageRepository.findAll()
+                .first { it.content.contains("Hello people!") }
+                .apply {
+                    assertThat(this.prepareForTesting())
+                        .isEqualTo(
+                            Message(
+                                content = "Hello people!",
+                                contentType = ContentType.MARKDOWN,
+                                sent = now.plusSeconds(1).truncatedTo(MILLIS),
+                                username = "test",
+                                userAvatarImageLink = "http://test.com"
+                            )
                         )
-                    )
-            }
+                }
+        }
     }
 }
